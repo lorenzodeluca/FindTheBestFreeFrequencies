@@ -24,3 +24,8 @@ Il programma si occupa di scansionare le frequenze occupate di un determinato te
 
 ### Esempio di output
 file `output.txt`
+
+
+TO-DO:
+- aggiungere informazioni api esterna alla documentazione
+- migliorare documentazione
