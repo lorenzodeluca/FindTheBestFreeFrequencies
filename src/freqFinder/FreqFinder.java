@@ -193,7 +193,7 @@ class FreqFinder {
     System.out.println("\n\n\nFrequenze FM(87,5 - 108 MHz)");
     System.out.println("Frequenze in Italia libere");
 
-    double distanzaSpanTraFreqMhz = 0.1;
+    double distanzaSpanTraFreqMhz = 0.09;
 
     System.out.println(
       "\n\nfrequenze libere in italia:" +
@@ -201,7 +201,7 @@ class FreqFinder {
       distanzaSpanTraFreqMhz +
       "Mhz)"
     );
-    for (double frq = 87.5; frq < 108; frq+=0.1) {
+    for (double frq = 87.5; frq <= 108; frq+=0.1) {
         double frqPrima = trovaFreqPrima(frq,listaFrequenze);
         double frqAttuale = frq;
         double frqDopo = trovaFreqDopo(frq,listaFrequenze);
@@ -239,7 +239,7 @@ class FreqFinder {
         	listaFrequenze.add(freqs.get(i).frequency);
       }
       Collections.sort(listaFrequenze);
-      for (double frq = 87.5; frq < 108; frq+=0.1) {
+      for (double frq = 87.5; frq < 108; frq+=0.05) {
         double frqPrima = trovaFreqPrima(frq,listaFrequenze);
         double frqAttuale = frq;
         double frqDopo = trovaFreqDopo(frq,listaFrequenze);
