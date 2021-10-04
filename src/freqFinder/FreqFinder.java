@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -184,9 +185,7 @@ class FreqFinder {
     listaFrequenze.add(110.001);
 
     for (int i = 0; i < freqs.size(); i++) {
-      if (!listaFrequenze.contains(freqs.get(i).frequency)) listaFrequenze.add(
-        freqs.get(i).frequency
-      );
+      if (!listaFrequenze.contains(freqs.get(i).frequency)) listaFrequenze.add(freqs.get(i).frequency);
     }
 
     Collections.sort(listaFrequenze);
@@ -194,7 +193,7 @@ class FreqFinder {
     System.out.println("\n\n\nFrequenze FM(87,5 - 108 MHz)");
     System.out.println("Frequenze in Italia libere");
 
-    double distanzaSpanTraFreqMhz = 0.2;
+    double distanzaSpanTraFreqMhz = 0.1;
 
     System.out.println(
       "\n\nfrequenze libere in italia:" +
@@ -202,70 +201,78 @@ class FreqFinder {
       distanzaSpanTraFreqMhz +
       "Mhz)"
     );
-    for (int i = 1; i < listaFrequenze.size() - 1; i++) {
-      double frqPrima = listaFrequenze.get(i - 1);
-      double frqAttuale = listaFrequenze.get(i);
-      double frqDopo = listaFrequenze.get(i + 1);
-      if (
-        frqAttuale - frqPrima >= distanzaSpanTraFreqMhz &&
-        frqDopo - frqAttuale >= distanzaSpanTraFreqMhz
-      ) {
-        listaFrequenzeRis.add(frqAttuale);
-      }
-    }
-    for (int i = 0; i < listaFrequenzeRis.size(); i++) {
-      System.out.print(listaFrequenzeRis.get(i) + " ");
-    }
-    System.out.println("\n--FINE LISTA--");
-
-    //lista frequenze libere per regione
-    ArrayList<Long> regioniId = new ArrayList<>();
-    for (int i = 0; i < freqs.size(); i++) {
-      if (!regioniId.contains(freqs.get(i).region_id)) regioniId.add(
-        freqs.get(i).region_id
-      );
-    }
-    String regione = "";
-    
-    //trovo tutte le frequenze per una determinata regione
-    for (int j = 0; j < regioniId.size(); j++) {
-      for (int i = 0; i < freqs.size(); i++) {
-        if (!listaFrequenze.contains(freqs.get(i).frequency) && freqs.get(i).region_id == regioniId.get(j)) {
-          listaFrequenze.add(freqs.get(i).frequency);
-          regione = freqs.get(i).region;
-        }
-      }
-      //System.out.println("--"+regioniId.get(j)+"-"+regione);
-
-      
-      listaFrequenze = new ArrayList<Double>(listaFrequenze.subList(0, 3));
-      listaFrequenzeRis.clear();
-      for (int i = 0; i < freqs.size(); i++) {
-        if (!listaFrequenze.contains(freqs.get(i).frequency) &&freqs.get(i).region.equals(regione)) 
-        	listaFrequenze.add(freqs.get(i).frequency);
-      }
-      Collections.sort(listaFrequenze);
-      for (int i = 1; i < listaFrequenze.size() - 1; i++) {
-        double frqPrima = listaFrequenze.get(i - 1);
-        double frqAttuale = listaFrequenze.get(i);
-        double frqDopo = listaFrequenze.get(i + 1);
+    for (double frq = 87.5; frq < 108; frq+=0.1) {
+        double frqPrima = trovaFreqPrima(frq,listaFrequenze);
+        double frqAttuale = frq;
+        double frqDopo = trovaFreqDopo(frq,listaFrequenze);
         if (
           frqAttuale - frqPrima >= distanzaSpanTraFreqMhz &&
           frqDopo - frqAttuale >= distanzaSpanTraFreqMhz
         ) {
           listaFrequenzeRis.add(frqAttuale);
         }
+      }		
+      for (int i = 0; i < listaFrequenzeRis.size(); i++) {
+        System.out.print(new DecimalFormat("#.##").format(listaFrequenzeRis.get(i)) + " ");
       }
+      System.out.println("\n--FINE LISTA--");
+
+    //lista frequenze libere per regione
+    ArrayList<Long> regioniId = new ArrayList<>();
+    for (int i = 0; i < freqs.size(); i++) {
+      if (!regioniId.contains(freqs.get(i).region_id)) regioniId.add(freqs.get(i).region_id);
+    }
+    String regione = "";
+    
+    //trovo tutte le frequenze per una determinata regione
+    for (int j = 0; j < regioniId.size(); j++) {
+      listaFrequenze = new ArrayList<Double>(listaFrequenze.subList(0, 3));
+      for (int i = 0; i < freqs.size(); i++) {
+        if (!listaFrequenze.contains(freqs.get(i).frequency) && freqs.get(i).region_id == regioniId.get(j)) {
+          listaFrequenze.add(freqs.get(i).frequency);
+          regione = freqs.get(i).region;
+        }
+      }
+      listaFrequenzeRis.clear();
+      for (int i = 0; i < freqs.size(); i++) {
+        if (!listaFrequenze.contains(freqs.get(i).frequency) &&freqs.get(i).region.equals(regione)) 
+        	listaFrequenze.add(freqs.get(i).frequency);
+      }
+      Collections.sort(listaFrequenze);
+      for (double frq = 87.5; frq < 108; frq+=0.1) {
+        double frqPrima = trovaFreqPrima(frq,listaFrequenze);
+        double frqAttuale = frq;
+        double frqDopo = trovaFreqDopo(frq,listaFrequenze);
+        if (
+          frqAttuale - frqPrima >= distanzaSpanTraFreqMhz &&
+          frqDopo - frqAttuale >= distanzaSpanTraFreqMhz
+        ) {
+          listaFrequenzeRis.add(frqAttuale);
+        }
+      }		
       if(listaFrequenzeRis.size()>0) {
 	      System.out.println("\n\nfrequenze libere in " +regione +":" +"(separate dalle altre da almeno " +distanzaSpanTraFreqMhz +"Mhz)");
 	      for (int i = 0; i < listaFrequenzeRis.size(); i++) {
-	        System.out.print(listaFrequenzeRis.get(i) + " ");
+	        System.out.print(new DecimalFormat("#.##").format(listaFrequenzeRis.get(i)) + " ");
 	      }
 	      System.out.println("\n--FINE LISTA--");
       }
     }
   }
-
+  public static double trovaFreqPrima(double frq,ArrayList<Double> freqs) {
+	  Double pre=freqs.get(2); //escludo frequenze fittizie
+	  for (int i = 0; i < freqs.size(); i++) {
+		  if(freqs.get(i)>pre&&freqs.get(i)<=frq) pre=freqs.get(i);
+	  }
+	  return pre;
+  }
+  public static double trovaFreqDopo(double frq,ArrayList<Double> freqs) {
+	  Double post=freqs.get(freqs.size()-3); //escludo frequenze fittizie
+	  for (int i = 0; i < freqs.size(); i++) {
+		  if(freqs.get(i)<post&&freqs.get(i)>=frq) post=freqs.get(i);
+	  }
+	  return post;
+  }
   public static void main(String[] args)
     throws IOException, ParseException, java.text.ParseException {
     // https://www.fm-world.it/frequenze-api.php?action=getAllProvinces
